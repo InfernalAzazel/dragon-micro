@@ -97,10 +97,10 @@ func JDAPI (appId string, entryId string, apiKey string) *JDAPIRequest {
 	request := new(JDAPIRequest)
 	// 对应请求的url
 	request.requestUrl.getWidgets = WEBSITE + "/api/v1/app/" + appId + "/entry/" + entryId + "/widgets"
-	request.requestUrl.getFormData = WEBSITE + "/api/v1/app/" + appId + "/entry/" + entryId + "/data"
-	request.requestUrl.retrieveData = WEBSITE + "/api/v1/app/" + appId + "/entry/" + entryId + "/data_retrieve"
-	request.requestUrl.createData = WEBSITE + "/api/v1/app/" + appId + "/entry/" + entryId + "/data_create"
-	request.requestUrl.updateData = WEBSITE + "/api/v1/app/" + appId + "/entry/" + entryId + "/data_update"
+	request.requestUrl.getFormData = WEBSITE + "/api/v2/app/" + appId + "/entry/" + entryId + "/data"
+	request.requestUrl.retrieveData = WEBSITE + "/api/v2/app/" + appId + "/entry/" + entryId + "/data_retrieve"
+	request.requestUrl.createData = WEBSITE + "/api/v3/app/" + appId + "/entry/" + entryId + "/data_create"
+	request.requestUrl.updateData = WEBSITE + "/api/v3/app/" + appId + "/entry/" + entryId + "/data_update"
 	request.requestUrl.deleteData = WEBSITE + "/api/v1/app/" + appId + "/entry/" + entryId + "/data_delete"
 	request.retryIfRateLimited = true
 	request.apiKey = apiKey
@@ -195,7 +195,7 @@ func getNextPageData (api *JDAPIRequest, formData []interface{}, limit int, fiel
  * @param dataId - 数据id
  * @param callback - 回调函数
  */
-func retrieveData (api *JDAPIRequest, dataId string, callback func(map[string]interface{}, error)) {
+func getRetrieveData (api *JDAPIRequest, dataId string, callback func(map[string]interface{}, error)) {
 	requestData := map[string]interface{}{
 		"data_id": dataId,
 	}
@@ -261,14 +261,14 @@ func deleteData (api *JDAPIRequest, dataId string, callback func(map[string]inte
 /**
  * 示例
  */
-//func main () {
+//funs main () {
 //	appId := "5b1747e93b708d0a80667400"
 //	entryId := "5b1749ae3b708d0a80667408"
 //	apiKey := "CTRP5jibfk7qnnsGLCCcmgnBG6axdHiX"
 //	api := NewAPIRequest(appId, entryId, apiKey)
 //
 //	// 获取表单字段
-//	getFormWidgets(api, func(widgets []interface{}, err error) {
+//	getFormWidgets(api, funs(widgets []interface{}, err error) {
 //		if err != nil {
 //			fmt.Println(err)
 //		} else {
@@ -288,7 +288,7 @@ func deleteData (api *JDAPIRequest, dataId string, callback func(map[string]inte
 //			},
 //		},
 //	}
-//	getFormData(api, 10, []string{ "_widget_1528252846720", "_widget_1528252846801" }, filter, "", func(data []interface{}, err error) {
+//	getFormData(api, 10, []string{ "_widget_1528252846720", "_widget_1528252846801" }, filter, "", funs(data []interface{}, err error) {
 //		if err != nil {
 //			fmt.Println(err)
 //		} else {
@@ -298,7 +298,7 @@ func deleteData (api *JDAPIRequest, dataId string, callback func(map[string]inte
 //	})
 //
 //	// 获取全部数据
-//	getAllFormData(api, nil, nil, func(data []interface{}, err error) {
+//	getAllFormData(api, nil, nil, funs(data []interface{}, err error) {
 //		if err != nil {
 //			fmt.Println(err)
 //		} else {
@@ -342,7 +342,7 @@ func deleteData (api *JDAPIRequest, dataId string, callback func(map[string]inte
 //		},
 //	}
 //	var newData map[string]interface{}
-//	createData(api, data, func(data map[string]interface{}, err error) {
+//	createData(api, data, funs(data map[string]interface{}, err error) {
 //		if err != nil {
 //			fmt.Println(err)
 //		} else {
@@ -373,7 +373,7 @@ func deleteData (api *JDAPIRequest, dataId string, callback func(map[string]inte
 //			"value": 12345,
 //		},
 //	}
-//	updateData(api, newData["_id"].(string), update, func(result map[string]interface{}, err error) {
+//	updateData(api, newData["_id"].(string), update, funs(result map[string]interface{}, err error) {
 //		if err != nil {
 //			fmt.Println(err)
 //		} else {
@@ -383,7 +383,7 @@ func deleteData (api *JDAPIRequest, dataId string, callback func(map[string]inte
 //	})
 //
 //	// 查询单条数据
-//	retrieveData(api, newData["_id"].(string), func(data map[string]interface{}, err error) {
+//	retrieveData(api, newData["_id"].(string), funs(data map[string]interface{}, err error) {
 //		if err != nil {
 //			fmt.Println(err)
 //		} else {
@@ -393,7 +393,7 @@ func deleteData (api *JDAPIRequest, dataId string, callback func(map[string]inte
 //	})
 //
 //	// 删除单条数据
-//	deleteData(api, newData["_id"].(string), func(result map[string]interface{}, err error) {
+//	deleteData(api, newData["_id"].(string), funs(result map[string]interface{}, err error) {
 //		if err != nil {
 //			fmt.Println(err)
 //		} else {
