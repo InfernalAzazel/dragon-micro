@@ -12,21 +12,24 @@ import (
 	"time"
 )
 
-const WEBSITE = "https://www.jiandaoyun.com"
-
-type JDAPIRequest struct {
-	// 对应表单API请求的url
-	requestUrl struct{
-		getWidgets string
-		getFormData string
-		retrieveData string
-		createData string
-		updateData string
-		deleteData string
-	}
-	// 频率超限后请求是否重试
-	retryIfRateLimited bool
-	apiKey string
+/**
+ * 构造函数
+ * @param appId - 应用id
+ * @param entryId - 表单id
+ * @param apiKey - 接口密钥
+ */
+func NewJDAPI (appId string, entryId string, apiKey string) *jdAPIRequest {
+	request := new(jdAPIRequest)
+	// 对应请求的url
+	request.requestUrl.getWidgets = JDBasic + "/api/v1/app/" + appId + "/entry/" + entryId + "/widgets"
+	request.requestUrl.getFormData = JDBasic + "/api/v2/app/" + appId + "/entry/" + entryId + "/data"
+	request.requestUrl.retrieveData = JDBasic + "/api/v2/app/" + appId + "/entry/" + entryId + "/data_retrieve"
+	request.requestUrl.createData = JDBasic + "/api/v3/app/" + appId + "/entry/" + entryId + "/data_create"
+	request.requestUrl.updateData = JDBasic + "/api/v3/app/" + appId + "/entry/" + entryId + "/data_update"
+	request.requestUrl.deleteData = JDBasic + "/api/v1/app/" + appId + "/entry/" + entryId + "/data_delete"
+	request.retryIfRateLimited = true
+	request.apiKey = apiKey
+	return request
 }
 
 /**
@@ -37,10 +40,11 @@ type JDAPIRequest struct {
  * @param data - 请求数据
  * @param callback - 回调函数
  */
-func sendRequest (api *JDAPIRequest, method string, requestUrl string, data map[string]interface{},
+func sendRequest (api *jdAPIRequest, method string, requestUrl string, data map[string]interface{},
 	callback func(map[string]interface{}, error)) {
 	method = strings.ToUpper(method)
 	var resp *http.Response
+
 	tr := &http.Transport{
 		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
 	}
@@ -73,8 +77,8 @@ func sendRequest (api *JDAPIRequest, method string, requestUrl string, data map[
 	defer resp.Body.Close()
 	if resp.StatusCode >= 400 {
 		if result["code"].(float64) == 8303 && api.retryIfRateLimited {
-			// 频率超限，5s后重试
-			time.Sleep(5 * 1000 * 1000 * 1000)
+			// 频率超限，1s后重试
+			time.Sleep(1 * 1000 * 1000 * 1000)
 			sendRequest(api, method, requestUrl, data, callback)
 		} else {
 			code, _ := json.Marshal(result["code"])
@@ -87,31 +91,13 @@ func sendRequest (api *JDAPIRequest, method string, requestUrl string, data map[
 
 }
 
-/**
- * 构造函数
- * @param appId - 应用id
- * @param entryId - 表单id
- * @param apiKey - 接口密钥
- */
-func JDAPI (appId string, entryId string, apiKey string) *JDAPIRequest {
-	request := new(JDAPIRequest)
-	// 对应请求的url
-	request.requestUrl.getWidgets = WEBSITE + "/api/v1/app/" + appId + "/entry/" + entryId + "/widgets"
-	request.requestUrl.getFormData = WEBSITE + "/api/v2/app/" + appId + "/entry/" + entryId + "/data"
-	request.requestUrl.retrieveData = WEBSITE + "/api/v2/app/" + appId + "/entry/" + entryId + "/data_retrieve"
-	request.requestUrl.createData = WEBSITE + "/api/v3/app/" + appId + "/entry/" + entryId + "/data_create"
-	request.requestUrl.updateData = WEBSITE + "/api/v3/app/" + appId + "/entry/" + entryId + "/data_update"
-	request.requestUrl.deleteData = WEBSITE + "/api/v1/app/" + appId + "/entry/" + entryId + "/data_delete"
-	request.retryIfRateLimited = true
-	request.apiKey = apiKey
-	return request
-}
+
 
 /**
  * 获取表单字段
  * @param callback - 回调函数
  */
-func getFormWidgets (api *JDAPIRequest, callback func([]interface{}, error)) {
+func (JDAPICallback) GetFormWidgets (api *jdAPIRequest, callback func([]interface{}, error)) {
 	sendRequest(api, "POST", api.requestUrl.getWidgets, map[string]interface{}{}, func(result map[string]interface{}, err error) {
 		if err != nil {
 			callback(nil, err)
@@ -129,7 +115,7 @@ func getFormWidgets (api *JDAPIRequest, callback func([]interface{}, error)) {
  * @param dataId - 上一次查询数据结果的最后一条数据的id
  * @param callback - 回调函数
  */
-func getFormData (api *JDAPIRequest, limit int, fields []string, filter map[string]interface{}, dataId string, callback func([]interface{}, error)) {
+func (t *JDAPICallback) GetFormData (api *jdAPIRequest, limit int, fields []string, filter map[string]interface{}, dataId string, callback func([]interface{}, error)) {
 	queryData := make(map[string]interface{})
 	queryData["limit"] = limit
 	queryData["fields"] = fields
@@ -154,9 +140,9 @@ func getFormData (api *JDAPIRequest, limit int, fields []string, filter map[stri
  * @param dataId - 上一次查询数据结果的最后一条数据的id
  * @param callback - 回调函数
  */
-func getAllFormData (api *JDAPIRequest, fields []string, filter map[string]interface{}, callback func([]interface{}, error)) {
+func (t *JDAPICallback) GetAllFormData (api *jdAPIRequest, fields []string, filter map[string]interface{}, callback func([]interface{}, error)) {
 	// 递归获取所有的数据
-	getNextPageData(api, []interface{}{}, 100, fields, filter, "", callback)
+	t.getNextPageData(api, []interface{}{}, 100, fields, filter, "", callback)
 }
 
 /**
@@ -168,10 +154,10 @@ func getAllFormData (api *JDAPIRequest, fields []string, filter map[string]inter
  * @param dataId - 上一次查询数据结果的最后一条数据的id
  * @param callback - 回调函数
  */
-func getNextPageData (api *JDAPIRequest, formData []interface{}, limit int, fields []string, filter map[string]interface{}, dataId string,
+func (t *JDAPICallback) getNextPageData (api *jdAPIRequest, formData []interface{}, limit int, fields []string, filter map[string]interface{}, dataId string,
 	callback func([]interface{}, error))  {
 	// 获取单页数据
-	getFormData(api, limit, fields, filter, dataId, func(data []interface{}, err error) {
+	t.GetFormData(api, limit, fields, filter, dataId, func(data []interface{}, err error) {
 		if err != nil {
 			callback(nil, err)
 		} else {
@@ -181,7 +167,7 @@ func getNextPageData (api *JDAPIRequest, formData []interface{}, limit int, fiel
 				// 取出最后一条数据
 				lastData := data[len(data)-1].(map[string]interface{})
 				// 递归取下一页的数据
-				getNextPageData(api, formData, limit, fields, filter, lastData["_id"].(string), callback)
+				t.getNextPageData(api, formData, limit, fields, filter, lastData["_id"].(string), callback)
 			} else {
 				// 没有更多的数据
 				callback(formData, nil)
@@ -195,7 +181,7 @@ func getNextPageData (api *JDAPIRequest, formData []interface{}, limit int, fiel
  * @param dataId - 数据id
  * @param callback - 回调函数
  */
-func getRetrieveData (api *JDAPIRequest, dataId string, callback func(map[string]interface{}, error)) {
+func (t *JDAPICallback) GetRetrieveData (api *jdAPIRequest, dataId string, callback func(map[string]interface{}, error)) {
 	requestData := map[string]interface{}{
 		"data_id": dataId,
 	}
@@ -211,13 +197,15 @@ func getRetrieveData (api *JDAPIRequest, dataId string, callback func(map[string
 /**
  * 更新单条数据
  * @param dataId - 数据id
- * @param update - 更新的内容
+ * @param data - 更新的内容
+ * @param isStartTrigger - Bool		是否触发智能助手	false
  * @param callback - 回调函数
  */
-func updateData (api *JDAPIRequest, dataId string, data map[string]interface{}, callback func(map[string]interface{}, error)) {
+func (t *JDAPICallback) UpdateData (api *jdAPIRequest, dataId string, data map[string]interface{}, isStartTrigger bool, callback func(map[string]interface{}, error)) {
 	requestData := map[string]interface{}{
 		"data_id": dataId,
 		"data": data,
+		"is_start_trigger": isStartTrigger,
 	}
 	sendRequest(api, "POST", api.requestUrl.updateData, requestData, func(result map[string]interface{}, err error) {
 		if err != nil {
@@ -231,11 +219,15 @@ func updateData (api *JDAPIRequest, dataId string, data map[string]interface{}, 
 /**
  * 创建单条数据
  * @param data - 数据内容
+ * @param isStartWorkflow - Bool	是否发起流程（仅流程表单有效）	false
+ * @param isStartTrigger - Bool		是否触发智能助手	false
  * @param callback - 回调函数
  */
-func createData (api *JDAPIRequest, data map[string]interface{}, callback func(map[string]interface{}, error)) {
+func (t *JDAPICallback) CreateData (api *jdAPIRequest, data map[string]interface{}, isStartWorkflow bool,isStartTrigger bool, callback func(map[string]interface{}, error)) {
 	requestData := map[string]interface{}{
 		"data": data,
+		"is_start_workflow":isStartWorkflow,
+		"is_start_trigger": isStartTrigger,
 	}
 	sendRequest(api, "POST", api.requestUrl.createData, requestData, func(result map[string]interface{}, err error) {
 		if err != nil {
@@ -249,11 +241,13 @@ func createData (api *JDAPIRequest, data map[string]interface{}, callback func(m
 /**
  * 删除单条数据
  * @param dataId - 数据id
+ * @param isStartTrigger - Bool		是否触发智能助手	false
  * @param callback - 回调函数
  */
-func deleteData (api *JDAPIRequest, dataId string, callback func(map[string]interface{}, error)) {
+func (t *JDAPICallback) DeleteData (api *jdAPIRequest, dataId string, isStartTrigger bool, callback func(map[string]interface{}, error)) {
 	requestData := map[string]interface{}{
 		"data_id": dataId,
+		"is_start_trigger": isStartTrigger,
 	}
 	sendRequest(api, "POST", api.requestUrl.deleteData, requestData, callback)
 }
@@ -261,6 +255,7 @@ func deleteData (api *JDAPIRequest, dataId string, callback func(map[string]inte
 /**
  * 示例
  */
+
 //funs main () {
 //	appId := "5b1747e93b708d0a80667400"
 //	entryId := "5b1749ae3b708d0a80667408"
