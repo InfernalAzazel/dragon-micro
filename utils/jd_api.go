@@ -83,7 +83,7 @@ func sendRequest (api *jdAPIRequest, method string, requestUrl string, data map[
 		} else {
 			code, _ := json.Marshal(result["code"])
 			msg, _ := json.Marshal(result["msg"])
-			callback(nil, errors.New("请求错误 Error Code: " + string(code[:]) + "Error Msg: " + string(msg[:])))
+			callback(nil, errors.New("请求错误 Error Code: " + string(code[:]) + " Error Msg: " + string(msg[:])))
 		}
 	} else {
 		callback(result, nil)
