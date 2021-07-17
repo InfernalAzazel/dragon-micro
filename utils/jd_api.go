@@ -1,14 +1,9 @@
 package utils
 
 import (
-	"bytes"
-	"crypto/tls"
 	"encoding/json"
 	"errors"
-	"io/ioutil"
-	"net/http"
-	"net/url"
-	"strings"
+	"github.com/imroc/req"
 	"time"
 )
 
@@ -40,46 +35,39 @@ func NewJDAPI (appId string, entryId string, apiKey string) *jdAPIRequest {
  * @param data - 请求数据
  * @param callback - 回调函数
  */
-func sendRequest (api *jdAPIRequest, method string, requestUrl string, data map[string]interface{},
+func (t *JDAPICallback)sendRequest (api *jdAPIRequest, method string, requestUrl string, payload interface{},
 	callback func(map[string]interface{}, error)) {
-	method = strings.ToUpper(method)
-	var resp *http.Response
 
-	tr := &http.Transport{
-		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
-	}
-	if method == "GET" {
-		// GET请求
-		u, _ := url.Parse(requestUrl)
-		q := u.Query()
-		for k, v := range data {
-			value, _ := json.Marshal(v)
-			q.Set(k, string(value[:]))
-		}
-		u.RawQuery = q.Encode()
-		client := &http.Client{ Transport: tr }
-		req, _ := http.NewRequest("GET", requestUrl, nil)
-		req.Header.Set("Authorization", "Bearer " + api.apiKey)
-		resp, _ = client.Do(req)
-	} else {
-		// POST请求
-		serialData, _ := json.Marshal(data)
-		body := ioutil.NopCloser(bytes.NewBuffer(serialData))
-		client := &http.Client{ Transport: tr }
-		req, _ := http.NewRequest("POST", requestUrl, body)
-		req.Header.Set("Content-Type", "application/json;charset=utf-8")
-		req.Header.Set("Authorization", "Bearer " + api.apiKey)
-		resp, _ = client.Do(req)
-	}
-	resData, _ := ioutil.ReadAll(resp.Body)
+	var resp *req.Resp
+	var err error
 	var result map[string]interface{}
-	json.Unmarshal(resData, &result)
-	defer resp.Body.Close()
-	if resp.StatusCode >= 400 {
+	r := req.New()
+
+	header := req.Header{
+		"Authorization": "Bearer " + api.apiKey,
+		"Content-Type": "application/json;charset=utf-8",
+	}
+
+	if  method == "GET" {
+		resp, err = r.Get(requestUrl, header, payload)
+		if err != nil {
+			callback(result, err)
+		}
+	} else {
+		// POST 请求
+		resp, err = r.Post(requestUrl, header, payload)
+		if err != nil {
+			callback(result, err)
+		}
+
+	}
+	err = resp.ToJSON(&result)
+
+	if resp.Response().StatusCode >= 400 {
 		if result["code"].(float64) == 8303 && api.retryIfRateLimited {
 			// 频率超限，1s后重试
 			time.Sleep(1 * 1000 * 1000 * 1000)
-			sendRequest(api, method, requestUrl, data, callback)
+			t.sendRequest(api, method, requestUrl, payload, callback)
 		} else {
 			code, _ := json.Marshal(result["code"])
 			msg, _ := json.Marshal(result["msg"])
@@ -88,7 +76,6 @@ func sendRequest (api *jdAPIRequest, method string, requestUrl string, data map[
 	} else {
 		callback(result, nil)
 	}
-
 }
 
 
@@ -97,8 +84,8 @@ func sendRequest (api *jdAPIRequest, method string, requestUrl string, data map[
  * 获取表单字段
  * @param callback - 回调函数
  */
-func (JDAPICallback) GetFormWidgets (api *jdAPIRequest, callback func([]interface{}, error)) {
-	sendRequest(api, "POST", api.requestUrl.getWidgets, map[string]interface{}{}, func(result map[string]interface{}, err error) {
+func (t *JDAPICallback) GetFormWidgets (api *jdAPIRequest, callback func([]interface{}, error)) {
+	t.sendRequest(api, "POST", api.requestUrl.getWidgets, nil, func(result map[string]interface{}, err error) {
 		if err != nil {
 			callback(nil, err)
 		} else {
@@ -123,7 +110,7 @@ func (t *JDAPICallback) GetFormData (api *jdAPIRequest, limit int, fields []stri
 	if dataId != "" {
 		queryData["data_id"] = dataId
 	}
-	sendRequest(api, "POST", api.requestUrl.getFormData, queryData, func(result map[string]interface{}, err error) {
+	t.sendRequest(api, "POST", api.requestUrl.getFormData, req.BodyJSON(queryData), func(result map[string]interface{}, err error) {
 		if err != nil {
 			callback(nil, err)
 		} else {
@@ -185,7 +172,7 @@ func (t *JDAPICallback) GetRetrieveData (api *jdAPIRequest, dataId string, callb
 	requestData := map[string]interface{}{
 		"data_id": dataId,
 	}
-	sendRequest(api, "POST", api.requestUrl.retrieveData, requestData, func(result map[string]interface{}, err error) {
+	t.sendRequest(api, "POST", api.requestUrl.retrieveData, req.BodyJSON(requestData), func(result map[string]interface{}, err error) {
 		if err != nil {
 			callback(nil, err)
 		} else {
@@ -207,7 +194,7 @@ func (t *JDAPICallback) UpdateData (api *jdAPIRequest, dataId string, data map[s
 		"data": data,
 		"is_start_trigger": isStartTrigger,
 	}
-	sendRequest(api, "POST", api.requestUrl.updateData, requestData, func(result map[string]interface{}, err error) {
+	t.sendRequest(api, "POST", api.requestUrl.updateData, req.BodyJSON(requestData), func(result map[string]interface{}, err error) {
 		if err != nil {
 			callback(nil, err)
 		} else {
@@ -229,7 +216,7 @@ func (t *JDAPICallback) CreateData (api *jdAPIRequest, data map[string]interface
 		"is_start_workflow":isStartWorkflow,
 		"is_start_trigger": isStartTrigger,
 	}
-	sendRequest(api, "POST", api.requestUrl.createData, requestData, func(result map[string]interface{}, err error) {
+	t.sendRequest(api, "POST", api.requestUrl.createData,  req.BodyJSON(requestData), func(result map[string]interface{}, err error) {
 		if err != nil {
 			callback(nil, err)
 		} else {
@@ -249,7 +236,7 @@ func (t *JDAPICallback) DeleteData (api *jdAPIRequest, dataId string, isStartTri
 		"data_id": dataId,
 		"is_start_trigger": isStartTrigger,
 	}
-	sendRequest(api, "POST", api.requestUrl.deleteData, requestData, callback)
+	t.sendRequest(api, "POST", api.requestUrl.deleteData,  req.BodyJSON(requestData), callback)
 }
 
 /**

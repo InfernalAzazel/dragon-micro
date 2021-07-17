@@ -2,29 +2,21 @@ package main
 
 import (
 	"context"
+	"dragon_micro/funs/e_wchat"
 	"dragon_micro/funs/jd"
-	"dragon_micro/utils"
 	"errors"
-	"fmt"
 	"github.com/smallnest/rpcx/protocol"
 	"github.com/smallnest/rpcx/server"
+	"runtime"
 )
 
 func main()  {
-
-	eWechatAPI := utils.NewEWechatAPI("ww9ec26301b4320ef9","IAFxK_Qalqg6DHVEXIpXN9_b42wVWBSjcFn9HV-Y1b0")
-	eWechatCallback := utils.EWechatCallback{}
-	eWechatCallback.GetToken(eWechatAPI, func(result map[string]interface{}, err error) {
-		if err != nil {
-			fmt.Println(err)
-		}else {
-			fmt.Println(result)
-		}
-	})
-
+	// 开启多核心支持
+	runtime.GOMAXPROCS(runtime.NumCPU())
 	s := server.NewServer()
 	s.AuthFunc = auth
 	s.RegisterName("JD_API", new(jd.API), "")
+	s.RegisterName("EWechat_API", new(e_wchat.API), "")
 	s.Serve("tcp", ":8888")
 }
 
