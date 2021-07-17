@@ -32,9 +32,14 @@ type EWechatCallback struct {}
 type eWechatAPIRequest struct {
 	// 对应企业微信API请求的url
 	requestUrl struct{
-		getDepartmentList string
-		getUserSimpleList string
+		// 获取access_token
+		GetToken string
+		// 获取成员
 		getUserList string
+		// 获取成员详细信息
+		getUserSimpleList string
+		// 获取部门
+		getDepartmentList string
 
 	}
 	// 频率超限后请求是否重试
