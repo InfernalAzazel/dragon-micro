@@ -5,10 +5,10 @@ import (
 	"dragon_micro/utils"
 )
 
-func (t *API) UserList(ctx context.Context, args *UserListArgs, reply *Reply) error {
+func (t *API) GetUserList(ctx context.Context, args *UserListArgs, reply *Reply) error {
 	api := utils.NewEWechatAPI(args.CorpId, args.CorpSecret)
 	eWechatCallback := utils.EWechatCallback{}
-	eWechatCallback.UserList(api, args.AccessToken, args.DepartmentId, args.FetchChild,func(result map[string]interface{}, err error) {
+	eWechatCallback.GetUserList(api, args.AccessToken, args.DepartmentId, args.FetchChild,func(result map[string]interface{}, err error) {
 		if err != nil {
 			reply.State = "fail"
 			reply.Err = err.Error()

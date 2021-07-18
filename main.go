@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"dragon_micro/funs/crud"
 	"dragon_micro/funs/e_wchat"
 	"dragon_micro/funs/jd"
 	"errors"
@@ -11,10 +12,12 @@ import (
 )
 
 func main()  {
+
 	// 开启多核心支持
 	runtime.GOMAXPROCS(runtime.NumCPU())
 	s := server.NewServer()
 	s.AuthFunc = auth
+	s.RegisterName("CRUD", new(crud.API), "")
 	s.RegisterName("JD_API", new(jd.API), "")
 	s.RegisterName("EWechat_API", new(e_wchat.API), "")
 	s.Serve("tcp", ":8888")

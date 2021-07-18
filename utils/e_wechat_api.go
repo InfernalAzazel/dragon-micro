@@ -86,7 +86,7 @@ func (t *EWechatCallback) GetToken(api *eWechatAPIRequest, callback func(map[str
  * @param fetchChild - 否 是否递归获取子部门下面的成员：1-递归获取，0-只获取本部门  可以不填
  * @param callback - 是 回调函数
  */
-func (t *EWechatCallback) UserList(api *eWechatAPIRequest, accessToken string,departmentId int, fetchChild int, callback func(map[string]interface{}, error))  {
+func (t *EWechatCallback) GetUserList(api *eWechatAPIRequest, accessToken string,departmentId int, fetchChild int, callback func(map[string]interface{}, error))  {
 	t.sendRequest(api, "GET",
 		api.requestUrl.getUserList,
 		req.Param{
@@ -107,7 +107,7 @@ func (t *EWechatCallback) UserList(api *eWechatAPIRequest, accessToken string,de
  * @param fetchChild - 否 是否递归获取子部门下面的成员：1-递归获取，0-只获取本部门
  * @param callback - 是 回调函数
  */
-func (t *EWechatCallback) UserSimpleList(api *eWechatAPIRequest, accessToken string,departmentId int, fetchChild int, callback func(map[string]interface{}, error))  {
+func (t *EWechatCallback) GetUserSimpleList(api *eWechatAPIRequest, accessToken string,departmentId int, fetchChild int, callback func(map[string]interface{}, error))  {
 	t.sendRequest(api, "GET",
 		api.requestUrl.getUserSimpleList,
 		req.Param{

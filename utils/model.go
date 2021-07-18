@@ -7,6 +7,10 @@ const (
 
 )
 
+// sql
+type SQLCrudCallback struct {
+}
+
 // 简道云API回调
 type JDAPICallback struct {}
 
