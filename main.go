@@ -5,6 +5,7 @@ import (
 	"dragon_micro/funs/crud"
 	"dragon_micro/funs/e_wchat"
 	"dragon_micro/funs/jd"
+	"dragon_micro/funs/test"
 	"errors"
 	"github.com/smallnest/rpcx/protocol"
 	"github.com/smallnest/rpcx/server"
@@ -17,6 +18,7 @@ func main()  {
 	runtime.GOMAXPROCS(runtime.NumCPU())
 	s := server.NewServer()
 	s.AuthFunc = auth
+	s.RegisterName("Arith", new(test.Arith), "")
 	s.RegisterName("CRUD", new(crud.API), "")
 	s.RegisterName("JD_API", new(jd.API), "")
 	s.RegisterName("EWechat_API", new(e_wchat.API), "")

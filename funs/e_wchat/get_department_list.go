@@ -8,7 +8,7 @@ import (
 func (t *API) GetDepartmentList(ctx context.Context, args *GetDepartmentListArgs, reply *Reply) error {
 	eWechatAPI := utils.NewEWechatAPI(args.CorpId, args.CorpSecret)
 	eWechatCallback := utils.EWechatCallback{}
-	eWechatCallback.GetDepartmentList(eWechatAPI, args.AccessToken, args.Id,func(result map[string]interface{}, err error) {
+	eWechatCallback.GetDepartmentList(eWechatAPI, args.AccessToken, args.Id, func(result map[string]interface{}, err error) {
 		if err != nil {
 			reply.State = "fail"
 			reply.Err = err.Error()
@@ -20,4 +20,3 @@ func (t *API) GetDepartmentList(ctx context.Context, args *GetDepartmentListArgs
 
 	return nil
 }
-
