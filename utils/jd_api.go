@@ -51,13 +51,13 @@ func (t *JDAPICallback)sendRequest (api *jdAPIRequest, method string, requestUrl
 	if  method == "GET" {
 		resp, err = r.Get(requestUrl, header, payload)
 		if err != nil {
-			callback(result, err)
+			callback(nil, err)
 		}
 	} else {
 		// POST 请求
 		resp, err = r.Post(requestUrl, header, payload)
 		if err != nil {
-			callback(result, err)
+			callback(nil, err)
 		}
 
 	}

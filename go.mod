@@ -14,6 +14,7 @@ require (
 	github.com/go-sql-driver/mysql v1.6.0
 	github.com/imroc/req v0.3.0
 	github.com/mattn/go-sqlite3 v1.14.0 // indirect
+	github.com/sirupsen/logrus v1.4.2
 	github.com/smallnest/rpcx v1.6.4
 	github.com/tealeg/xlsx v1.0.5 // indirect
 	github.com/xormplus/builder v0.0.0-20200331055651-240ff40009be // indirect

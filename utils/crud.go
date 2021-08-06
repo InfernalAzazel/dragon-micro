@@ -2,8 +2,8 @@ package utils
 
 import (
 	"database/sql"
-	"fmt"
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/sirupsen/logrus"
 	"github.com/xormplus/xorm"
 )
 
@@ -16,7 +16,7 @@ func NewEngineSQL(driverName string, dataSourceName string)(*xorm.Engine, error)
 	var err error
 	engine, err = xorm.NewEngine(driverName, dataSourceName)
 	if err != nil {
-		fmt.Println(err.Error())
+		logrus.Error(err.Error())
 	}
 	return engine, err
 }
