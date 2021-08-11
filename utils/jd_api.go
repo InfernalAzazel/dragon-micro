@@ -65,8 +65,8 @@ func (t *JDAPICallback)sendRequest (api *jdAPIRequest, method string, requestUrl
 
 	if resp.Response().StatusCode >= 400 {
 		if result["code"].(float64) == 8303 && api.retryIfRateLimited {
-			// 频率超限，1s后重试
-			time.Sleep(1 * 1000 * 1000 * 1000)
+			// 频率超限，1 毫秒后重试
+			time.Sleep(1 * 1000 * 1000)
 			t.sendRequest(api, method, requestUrl, payload, callback)
 		} else {
 			code, _ := json.Marshal(result["code"])
