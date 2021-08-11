@@ -120,50 +120,6 @@ func (t *JDAPICallback) GetFormData (api *jdAPIRequest, limit int, fields []stri
 }
 
 /**
- * 获取满足条件的所有表单数据
- * @param limit - 查询的数据条数
- * @param fields - 查询的字段列表
- * @param filter - 过滤配置
- * @param dataId - 上一次查询数据结果的最后一条数据的id
- * @param callback - 回调函数
- */
-func (t *JDAPICallback) GetAllFormData (api *jdAPIRequest, fields []string, filter map[string]interface{}, callback func([]interface{}, error)) {
-	// 递归获取所有的数据
-	t.getNextPageData(api, []interface{}{}, 100, fields, filter, "", callback)
-}
-
-/**
- * 获取下一页的数据，主要用来取所有的表单数据
- * @param formData - 当前已经获取的数据
- * @param limit - 查询的数据条数
- * @param fields - 查询的字段列表
- * @param filter - 过滤配置
- * @param dataId - 上一次查询数据结果的最后一条数据的id
- * @param callback - 回调函数
- */
-func (t *JDAPICallback) getNextPageData (api *jdAPIRequest, formData []interface{}, limit int, fields []string, filter map[string]interface{}, dataId string,
-	callback func([]interface{}, error))  {
-	// 获取单页数据
-	t.GetFormData(api, limit, fields, filter, dataId, func(data []interface{}, err error) {
-		if err != nil {
-			callback(nil, err)
-		} else {
-			if data != nil && len(data) != 0 {
-				// 返回的数据非空
-				formData = append(formData, data...)
-				// 取出最后一条数据
-				lastData := data[len(data)-1].(map[string]interface{})
-				// 递归取下一页的数据
-				t.getNextPageData(api, formData, limit, fields, filter, lastData["_id"].(string), callback)
-			} else {
-				// 没有更多的数据
-				callback(formData, nil)
-			}
-		}
-	})
-}
-
-/**
  * 查询单条数据
  * @param dataId - 数据id
  * @param callback - 回调函数
