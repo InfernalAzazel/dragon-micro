@@ -2,10 +2,10 @@ package main
 
 import (
 	"context"
-	"dragon_micro/funs/crud"
-	"dragon_micro/funs/e_wchat"
-	"dragon_micro/funs/jd"
-	"dragon_micro/funs/test"
+	"dragon-micro/funs/crud"
+	"dragon-micro/funs/e_wchat"
+	"dragon-micro/funs/jd"
+	"dragon-micro/funs/test"
 	"errors"
 	"github.com/sirupsen/logrus"
 	"github.com/smallnest/rpcx/protocol"

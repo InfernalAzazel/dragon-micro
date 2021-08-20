@@ -2,7 +2,7 @@ package e_wchat
 
 import (
 	"context"
-	"dragon_micro/utils"
+	"dragon-micro/utils"
 )
 
 func (t *API) GetDepartmentList(ctx context.Context, args *GetDepartmentListArgs, reply *Reply) error {

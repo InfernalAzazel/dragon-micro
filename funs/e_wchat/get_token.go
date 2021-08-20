@@ -2,7 +2,7 @@ package e_wchat
 
 import (
 	"context"
-	"dragon_micro/utils"
+	"dragon-micro/utils"
 )
 
 func (t *API) GetToken(ctx context.Context, args *GetTokenArgs, reply *Reply) error {

@@ -3,7 +3,7 @@ package e_wchat
 
 import (
 	"context"
-	"dragon_micro/utils"
+	"dragon-micro/utils"
 )
 
 func (t *API) GetUserSimpleList(ctx context.Context, args *UserSimpleListArgs, reply *Reply) error {

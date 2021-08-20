@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"github.com/imroc/req"
+	"github.com/spf13/cast"
 	"time"
 )
 
@@ -84,12 +85,22 @@ func (t *JDAPICallback)sendRequest (api *jdAPIRequest, method string, requestUrl
  * 获取表单字段
  * @param callback - 回调函数
  */
-func (t *JDAPICallback) GetFormWidgets (api *jdAPIRequest, callback func([]interface{}, error)) {
+func (t *JDAPICallback) GetFormWidgets (api *jdAPIRequest, callback func([]map[string]interface{}, error)) {
 	t.sendRequest(api, "POST", api.requestUrl.getWidgets, nil, func(result map[string]interface{}, err error) {
 		if err != nil {
 			callback(nil, err)
 		} else {
-			callback(result["widgets"].([]interface{}), nil)
+			// 解析转 JSON 对象
+			var m []map[string]interface{}
+			b, err := json.Marshal(result["widgets"])
+			if err != nil {
+				callback(nil, err)
+			}
+			err = json.Unmarshal(b, &m)
+			if err != nil {
+				callback(nil, err)
+			}
+			callback(m, nil)
 		}
 	})
 }
@@ -102,7 +113,7 @@ func (t *JDAPICallback) GetFormWidgets (api *jdAPIRequest, callback func([]inter
  * @param dataId - 上一次查询数据结果的最后一条数据的id
  * @param callback - 回调函数
  */
-func (t *JDAPICallback) GetFormData (api *jdAPIRequest, limit int, fields []string, filter map[string]interface{}, dataId string, callback func([]interface{}, error)) {
+func (t *JDAPICallback) GetFormData (api *jdAPIRequest, limit int, fields []string, filter map[string]interface{}, dataId string, callback func([]map[string]interface{}, error)) {
 	queryData := make(map[string]interface{})
 	queryData["limit"] = limit
 	queryData["fields"] = fields
@@ -114,7 +125,17 @@ func (t *JDAPICallback) GetFormData (api *jdAPIRequest, limit int, fields []stri
 		if err != nil {
 			callback(nil, err)
 		} else {
-			callback(result["data"].([]interface{}), nil)
+			// 解析转 JSON 对象
+			var m []map[string]interface{}
+			b, err := json.Marshal(result["data"])
+			if err != nil {
+				callback(nil, err)
+			}
+			err = json.Unmarshal(b, &m)
+			if err != nil {
+				callback(nil, err)
+			}
+			callback(m , nil)
 		}
 	})
 }
@@ -132,7 +153,7 @@ func (t *JDAPICallback) GetRetrieveData (api *jdAPIRequest, dataId string, callb
 		if err != nil {
 			callback(nil, err)
 		} else {
-			callback(result["data"].(map[string]interface{}), nil)
+			callback(cast.ToStringMap(result["data"]), nil)
 		}
 	})
 }
@@ -154,7 +175,7 @@ func (t *JDAPICallback) UpdateData (api *jdAPIRequest, dataId string, data map[s
 		if err != nil {
 			callback(nil, err)
 		} else {
-			callback(result["data"].(map[string]interface{}), nil)
+			callback(cast.ToStringMap(result["data"]), nil)
 		}
 	})
 }
@@ -176,7 +197,7 @@ func (t *JDAPICallback) CreateData (api *jdAPIRequest, data map[string]interface
 		if err != nil {
 			callback(nil, err)
 		} else {
-			callback(result["data"].(map[string]interface{}), nil)
+			callback(cast.ToStringMap(result["data"]), nil)
 		}
 	})
 }

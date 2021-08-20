@@ -2,7 +2,7 @@ package crud
 
 import (
 	"context"
-	"dragon_micro/utils"
+	"dragon-micro/utils"
 )
 
 func (t *API) Query(ctx context.Context, args *RequestArgs, reply *Reply) error {

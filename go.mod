@@ -1,4 +1,4 @@
-module dragon_micro
+module dragon-micro
 
 go 1.16
 
@@ -13,12 +13,13 @@ require (
 	github.com/fatih/structs v1.1.0 // indirect
 	github.com/go-sql-driver/mysql v1.6.0
 	github.com/imroc/req v0.3.0
-	github.com/mattn/go-sqlite3 v1.14.0 // indirect
-	github.com/sirupsen/logrus v1.4.2
-	github.com/smallnest/rpcx v1.6.4
+	github.com/mattn/go-sqlite3 v1.14.8 // indirect
+	github.com/sirupsen/logrus v1.8.1
+	github.com/smallnest/rpcx v1.6.8
+	github.com/spf13/cast v1.4.1
 	github.com/tealeg/xlsx v1.0.5 // indirect
 	github.com/xormplus/builder v0.0.0-20200331055651-240ff40009be // indirect
 	github.com/xormplus/xorm v0.0.0-20210512135344-8123d584d5f5
-	google.golang.org/grpc/examples v0.0.0-20210714205950-0103ea2d6c98 // indirect
+	google.golang.org/grpc/examples v0.0.0-20210811224824-ad87ad009856 // indirect
 	gopkg.in/flosch/pongo2.v3 v3.0.0-20141028000813-5e81b817a0c4 // indirect
 )

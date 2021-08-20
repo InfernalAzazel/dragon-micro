@@ -2,8 +2,8 @@ package jd
 
 import (
 	"context"
-	"dragon_micro/utils"
-	_ "dragon_micro/utils"
+	"dragon-micro/utils"
+	_ "dragon-micro/utils"
 )
 
 func (t *API) UpdateData(ctx context.Context, args *UpdateDataArgs, reply *Reply) error {
