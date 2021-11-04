@@ -221,9 +221,10 @@ func (t *JDAPICallback) DeleteData (api *jdAPIRequest, dataId string, isStartTri
  */
 
 //funs main () {
-//	appId := "5b1747e93b708d0a80667400"
-//	entryId := "5b1749ae3b708d0a80667408"
-//	apiKey := "CTRP5jibfk7qnnsGLCCcmgnBG6axdHiX"
+	// 输入自己的key
+//	appId := ""
+//	entryId := ""
+//	apiKey := ""
 //	api := NewAPIRequest(appId, entryId, apiKey)
 //
 //	// 获取表单字段
